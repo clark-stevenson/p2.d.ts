@@ -1,5 +1,6 @@
 // Type definitions for p2.js v0.6.0
 // Project: https://github.com/schteppe/p2.js/
+// Rev 31/12/2014
 
 declare module p2 {
 
@@ -73,6 +74,7 @@ declare module p2 {
         contactEquations: ContactEquation[];
         frictionEquations: FrictionEquation[];
         enableFriction: boolean;
+        enableEquations: boolean;
         slipForce: number;
         frictionCoefficient: number;
         surfaceVelocity: number;
@@ -91,7 +93,7 @@ declare module p2 {
         reset(): void;
         createContactEquation(bodyA: Body, bodyB: Body, shapeA: Shape, shapeB: Shape): ContactEquation;
         createFrictionFromContact(c: ContactEquation): FrictionEquation;
-        
+
     }
 
     export class SAPBroadphase extends Broadphase {
@@ -364,21 +366,23 @@ declare module p2 {
 
     }
 
+    export class ContactMaterialOptions {
+
+        friction: number;
+        restitution: number;
+        stiffness: number;
+        relaxation: number;
+        frictionStiffness: number;
+        frictionRelaxation: number;
+        surfaceVelocity: number;
+
+    }
+
     export class ContactMaterial {
 
         static idCounter: number;
 
-        constructor(materialA: Material, materialB: Material, options?: {
-
-            friction?: number;
-            restitution?: number;
-            stiffness?: number;
-            relaxation?: number;
-            frictionStiffness?: number;
-            frictionRelaxation?: number;
-            surfaceVelocity?: number;
-
-        });
+        constructor(materialA: Material, materialB: Material, options?: ContactMaterialOptions);
 
         id: number;
         materialA: Material;
@@ -439,7 +443,20 @@ declare module p2 {
         static normalize(out: number[], a: number[]): number[];
         static dot(a: number[], b: number[]): number;
         static str(a: number[]): string;
-    
+
+    }
+
+    export class BodyOptions {
+
+        mass: number;
+        position: number[];
+        velocity: number[];
+        angle: number;
+        angularVelocity: number;
+        force: number[];
+        angularForce: number;
+        fixedRotation: number;
+
     }
 
     export class Body extends EventEmitter {
@@ -463,16 +480,7 @@ declare module p2 {
         static SLEEPY: number;
         static SLEEPING: number;
 
-        constructor(options?: {
-            mass?: number;
-            position?: number[];
-            velocity?: number[];
-            angle?: number;
-            angularVelocity?: number;
-            force?: number[];
-            angularForce?: number;
-            fixedRotation?: number;
-        });
+        constructor(options?: BodyOptions);
 
         id: number;
         world: World;
@@ -510,6 +518,7 @@ declare module p2 {
         sleepSpeedLimit: number;
         sleepTimeLimit: number;
         gravityScale: number;
+        collisionResponse: boolean;
 
         updateSolveMassProperties(): void;
         setDensity(density: number): void;
@@ -651,13 +660,14 @@ declare module p2 {
         static RECTANGLE: number;
         static CAPSULE: number;
         static HEIGHTFIELD: number;
-        
+
         constructor(type: number);
 
         type: number;
         id: number;
         boundingRadius: number;
         collisionGroup: number;
+        collisionResponse: boolean;
         collisionMask: number;
         material: Material;
         area: number;
@@ -727,7 +737,7 @@ declare module p2 {
         tolerance: number;
         useZeroRHS: boolean;
         frictionIterations: number;
-        usedIterations: number; 
+        usedIterations: number;
 
         solve(h: number, world: World): void;
 
@@ -826,7 +836,7 @@ declare module p2 {
         };
 
         addSpringEvent: {
-            type; string;
+            type: string;
         };
 
         impactEvent: {
@@ -871,7 +881,7 @@ declare module p2 {
         static ISLAND_SLEEPING: number;
 
         static integrateBody(body: Body, dy: number): void;
-        
+
         constructor(options?: {
             solver?: Solver;
             gravity?: number[];
