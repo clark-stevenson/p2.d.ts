@@ -1,6 +1,6 @@
-// Type definitions for p2.js v0.6.0
+// Type definitions for p2.js v0.7.1
 // Project: https://github.com/schteppe/p2.js/
-// Rev 31/12/2014
+// Rev 21/11/2015
 
 declare module p2 {
 
@@ -446,16 +446,16 @@ declare module p2 {
 
     }
 
-    export class BodyOptions {
+    export interface BodyOptions {
 
-        mass: number;
-        position: number[];
-        velocity: number[];
-        angle: number;
-        angularVelocity: number;
-        force: number[];
-        angularForce: number;
-        fixedRotation: number;
+        mass?: number;
+        position?: number[];
+        velocity?: number[];
+        angle?: number;
+        angularVelocity?: number;
+        force?: number[];
+        angularForce?: number;
+        fixedRotation?: boolean;
 
     }
 
@@ -485,8 +485,6 @@ declare module p2 {
         id: number;
         world: World;
         shapes: Shape[];
-        shapeOffsets: number[][];
-        shapeAngles: number[];
         mass: number;
         invMass: number;
         inertia: number;
@@ -598,20 +596,40 @@ declare module p2 {
 
     }
 
+    export interface CapsuleOptions extends SharedShapeOptions {
+
+      length?: number;
+      radius?: number;
+
+    }
+
     export class Capsule extends Shape {
 
-        constructor(length?: number, radius?: number);
+        constructor(options?: CapsuleOptions);
 
         length: number;
         radius: number;
 
     }
 
+    export interface CircleOptions extends SharedShapeOptions {
+
+      radius?: number;
+
+    }
+
     export class Circle extends Shape {
 
-        constructor(radius: number);
+        constructor(options?: CircleOptions);
 
         radius: number;
+
+    }
+
+    export interface ConvexOptions extends SharedShapeOptions {
+
+      length?: number;
+      radius?: number;
 
     }
 
@@ -619,7 +637,7 @@ declare module p2 {
 
         static triangleArea(a: number[], b: number[], c: number[]): number;
 
-        constructor(vertices: number[][], axes: number[]);
+        constructor(options?: ConvexOptions);
 
         vertices: number[][];
         axes: number[];
@@ -634,18 +652,40 @@ declare module p2 {
 
     }
 
+    export interface HeightfieldOptions extends SharedShapeOptions {
+
+        heights?: number[];
+        minValue?: number;
+        maxValue?: number;
+        elementWidth?: number;
+
+    }
+
     export class Heightfield extends Shape {
 
-        constructor(data: number[], options?: {
-            minValue?: number;
-            maxValue?: number;
-            elementWidth: number;
-        });
+        constructor(options?: HeightfieldOptions);
 
         data: number[];
         maxValue: number;
         minValue: number;
         elementWidth: number;
+
+    }
+
+    export interface SharedShapeOptions {
+
+        position?: number[];
+        angle?: number;
+        collisionGroup?: number;
+        collisionResponse?: boolean;
+        collisionMask?: number;
+        sensor?: boolean;
+
+    }
+
+    export interface ShapeOptions extends SharedShapeOptions {
+
+        type?: number;
 
     }
 
@@ -657,14 +697,16 @@ declare module p2 {
         static PLANE: number;
         static CONVEX: number;
         static LINE: number;
-        static RECTANGLE: number;
+        static BOX: number;
         static CAPSULE: number;
         static HEIGHTFIELD: number;
 
-        constructor(type: number);
+        constructor(options?: ShapeOptions);
 
         type: number;
         id: number;
+        position: number[];
+        angle: number;
         boundingRadius: number;
         collisionGroup: number;
         collisionResponse: boolean;
@@ -680,9 +722,15 @@ declare module p2 {
 
     }
 
+    export interface LineOptions extends SharedShapeOptions {
+
+      length?: number;
+
+    }
+
     export class Line extends Shape {
 
-        constructor(length?: number);
+        constructor(options?: LineOptions);
 
         length: number;
 
@@ -690,15 +738,26 @@ declare module p2 {
 
     export class Particle extends Shape {
 
+        constructor(options?: SharedShapeOptions);
+
     }
 
     export class Plane extends Shape {
 
+        constructor(options?: SharedShapeOptions);
+
     }
 
-    export class Rectangle extends Shape {
+    export interface BoxOptions {
 
-        constructor(width?: number, height?: number);
+      width?: number;
+      height?: number;
+
+    }
+
+    export class Box extends Shape {
+
+        constructor(options?: BoxOptions);
 
         width: number;
         height: number;
@@ -796,7 +855,7 @@ declare module p2 {
 
     export class IslandManager extends Solver {
 
-        static getUnvisitedNode(nodes: Node[]): IslandNode; // IslandNode | boolean
+        static getUnvisitedNode(nodes: IslandNode[]): IslandNode; // IslandNode | boolean
 
         equations: Equation[];
         islands: Island[];
